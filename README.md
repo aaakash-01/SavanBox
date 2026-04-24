@@ -1,5 +1,8 @@
 # 🎵 SaavnBox
 
+<img width="1313" height="589" alt="image" src="https://github.com/user-attachments/assets/eac368ce-82c1-40f8-8e6e-f814a4c40b6d" />
+
+
 > **Free, unlimited music downloads from JioSaavn — no account, no limits.**
 
 SaavnBox is a Flask-based web application that wraps the JioSaavn API to let you search and download songs, albums, and playlists in high quality. It features a clean, dark-mode UI with audio preview and one-click downloads.
