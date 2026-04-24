@@ -1,18 +1,20 @@
-from flask import Flask, request, redirect, jsonify, json
+from flask import Flask, request, redirect, jsonify, json, Response
 import time
 import jiosaavn
 import os
 from traceback import print_exc
 from flask_cors import CORS
+import requests as http_requests
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='assests', static_url_path='/assests')
 app.secret_key = os.environ.get("SECRET", 'thankyoutonystark#weloveyou3000')
 CORS(app)
 
 
 @app.route('/')
 def home():
-    return redirect("https://cyberboysumanjay.github.io/JioSaavnAPI/")
+    return app.send_static_file('../templates/index.html') if False else \
+           __import__('flask').render_template('index.html')
 
 
 @app.route('/song/')
@@ -166,6 +168,46 @@ def result():
         }
         return jsonify(error)
     return None
+
+
+@app.route('/proxy/')
+def proxy_audio():
+    """Proxy audio streams from JioSaavn CDN to bypass rate-limiting and CORS."""
+    url = request.args.get('url')
+    if not url:
+        return jsonify({"status": False, "error": "URL is required"}), 400
+
+    # Only allow proxying from known JioSaavn CDN domains
+    allowed_domains = ['saavncdn.com', 'jiosaavn.com', 'jio.com']
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    if not any(domain in parsed.hostname for domain in allowed_domains):
+        return jsonify({"status": False, "error": "Invalid URL domain"}), 403
+
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Referer': 'https://www.jiosaavn.com/',
+        }
+        resp = http_requests.get(url, headers=headers, stream=True, timeout=15)
+
+        def generate():
+            for chunk in resp.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+
+        content_type = resp.headers.get('Content-Type', 'audio/mp4')
+        response_headers = {
+            'Content-Type': content_type,
+            'Accept-Ranges': 'bytes',
+            'Cache-Control': 'public, max-age=86400',
+        }
+        if 'Content-Length' in resp.headers:
+            response_headers['Content-Length'] = resp.headers['Content-Length']
+
+        return Response(generate(), status=resp.status_code, headers=response_headers)
+    except Exception as e:
+        return jsonify({"status": False, "error": str(e)}), 500
 
 
 if __name__ == '__main__':

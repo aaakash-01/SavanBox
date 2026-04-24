@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/assests/images/logo.png" type="image/png" width="50" height="50" border-radius: 50%; />
+    <link rel="shortcut icon" href="/assests/images/logo.png" type="image/png" width="50" height="50" border-radius: 50%; />
+    <title>SaavnBox</title>
+    <meta
+      name="description"
+      content="Search and download songs, albums, and playlists from JioSaavn for free."
+    />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #06060f;
+        --bg2: #0d0d1f;
+        --card: rgba(255, 255, 255, 0.04);
+        --card-hover: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.07);
+        --border-hover: rgba(139, 92, 246, 0.4);
+        --primary: #8b5cf6;
+        --primary-glow: rgba(139, 92, 246, 0.35);
+        --secondary: #06b6d4;
+        --secondary-glow: rgba(6, 182, 212, 0.3);
+        --accent: #f472b6;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --text-dim: #475569;
+        --success: #22d3ee;
+        --error: #f43f5e;
+        --radius: 16px;
+        --radius-sm: 10px;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated background */
+      .bg-orbs {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.18;
+        animation: float 12s ease-in-out infinite alternate;
+      }
+      .orb-1 {
+        width: 520px;
+        height: 520px;
+        background: #8b5cf6;
+        top: -150px;
+        left: -100px;
+        animation-delay: 0s;
+      }
+      .orb-2 {
+        width: 380px;
+        height: 380px;
+        background: #06b6d4;
+        bottom: -100px;
+        right: -80px;
+        animation-delay: -4s;
+      }
+      .orb-3 {
+        width: 280px;
+        height: 280px;
+        background: #f472b6;
+        top: 40%;
+        left: 60%;
+        animation-delay: -8s;
+      }
+
+      @keyframes float {
+        from {
+          transform: translate(0, 0) scale(1);
+        }
+        to {
+          transform: translate(30px, 20px) scale(1.12);
+        }
+      }
+
+      /* Navbar */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        background: rgba(6, 6, 15, 0.8);
+        border-bottom: 1px solid var(--border);
+        padding: 0 clamp(16px, 5vw, 64px);
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1.5px solid rgba(139, 92, 246, 0.35);
+        box-shadow: 0 0 12px rgba(139, 92, 246, 0.25), 0 2px 8px rgba(0,0,0,0.4);
+        background: rgba(139, 92, 246, 0.08);
+        transition: box-shadow 0.3s, transform 0.3s;
+      }
+      .logo-icon:hover {
+        box-shadow: 0 0 22px rgba(139, 92, 246, 0.5), 0 4px 16px rgba(0,0,0,0.5);
+        transform: scale(1.07);
+      }
+      .logo-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 12px;
+      }
+      .logo span {
+        background: linear-gradient(90deg, #ad1de6, #0e22d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      .nav-tag {
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid rgba(139, 92, 246, 0.4);
+        color: #a78bfa;
+        background: rgba(139, 92, 246, 0.08);
+      }
+
+      /* Hero */
+      .hero {
+        position: relative;
+        z-index: 1;
+        padding: clamp(48px, 8vw, 96px) clamp(16px, 5vw, 64px) 48px;
+        text-align: center;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        padding: 6px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        background: rgba(139, 92, 246, 0.08);
+        color: #c4b5fd;
+        margin-bottom: 24px;
+        animation: fadeInDown 0.5s ease;
+      }
+      .hero-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--secondary);
+        box-shadow: 0 0 8px var(--secondary);
+      }
+      .hero h1 {
+        font-size: clamp(2rem, 6vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        background: linear-gradient(
+          135deg,
+          #f1f5f9 0%,
+          #c4b5fd 50%,
+          #67e8f9 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        margin-bottom: 16px;
+        animation: fadeInDown 0.6s ease;
+      }
+      .hero p {
+        font-size: clamp(0.95rem, 2vw, 1.15rem);
+        color: var(--text-muted);
+        max-width: 520px;
+        margin: 0 auto 40px;
+        animation: fadeInDown 0.7s ease;
+      }
+
+      /* Search box */
+      .search-wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 700px;
+        margin: 0 auto;
+        animation: fadeInUp 0.6s ease;
+      }
+      .search-box {
+        display: flex;
+        gap: 0;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        padding: 6px 6px 6px 24px;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+      .search-box:focus-within {
+        border-color: rgba(139, 92, 246, 0.6);
+        box-shadow:
+          0 0 0 4px rgba(139, 92, 246, 0.12),
+          0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+      .search-box input {
+        flex: 1;
+        background: none;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-family: "Outfit", sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+      }
+      .search-box input::placeholder {
+        color: var(--text-dim);
+      }
+      #search-btn {
+        background: linear-gradient(135deg, var(--primary), #6366f1);
+        border: none;
+        border-radius: 44px;
+        padding: 12px 28px;
+        color: #fff;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        white-space: nowrap;
+      }
+      #search-btn:hover {
+        transform: scale(1.04);
+        box-shadow: 0 6px 24px rgba(139, 92, 246, 0.45);
+      }
+      #search-btn:active {
+        transform: scale(0.97);
+      }
+
+      .search-hints {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .hint {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .hint svg {
+        opacity: 0.5;
+      }
+
+      /* Type tabs */
+      .tabs-wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 700px;
+        margin: 0 auto 40px;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 0 16px;
+        animation: fadeInUp 0.7s ease;
+      }
+      .tab-btn {
+        padding: 8px 20px;
+        border-radius: 50px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text-muted);
+        font-family: "Outfit", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tab-btn:hover {
+        border-color: rgba(139, 92, 246, 0.4);
+        color: var(--text);
+      }
+      .tab-btn.active {
+        background: rgba(139, 92, 246, 0.18);
+        border-color: rgba(139, 92, 246, 0.5);
+        color: #c4b5fd;
+      }
+
+      /* Main content */
+      main {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 clamp(16px, 5vw, 32px) 80px;
+      }
+
+      /* Loader */
+      #loader {
+        display: none;
+        text-align: center;
+        padding: 60px 0;
+      }
+      .spinner {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 3px solid rgba(139, 92, 246, 0.15);
+        border-top-color: var(--primary);
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #loader p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* Results header */
+      .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 12px;
+      }
+      .results-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .results-count {
+        font-size: 0.82rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background: rgba(139, 92, 246, 0.12);
+        color: #a78bfa;
+        border: 1px solid rgba(139, 92, 246, 0.25);
+      }
+
+      /* Song card */
+      .song-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0;
+        margin-bottom: 12px;
+        transition:
+          background 0.25s,
+          border-color 0.25s,
+          transform 0.2s,
+          box-shadow 0.25s;
+        animation: fadeInUp 0.4s ease both;
+        overflow: hidden;
+      }
+      .song-card:hover {
+        background: var(--card-hover);
+        border-color: var(--border-hover);
+        transform: translateY(-2px);
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(139, 92, 246, 0.1);
+      }
+      .song-card-inner {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+      }
+
+      .song-thumb {
+        position: relative;
+        width: 62px;
+        height: 62px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .song-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+      }
+      .song-card:hover .song-thumb img {
+        transform: scale(1.08);
+      }
+      .thumb-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.55);
+        opacity: 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+      }
+      .song-card:hover .thumb-overlay {
+        opacity: 1;
+      }
+      .play-icon {
+        font-size: 1.4rem;
+        color: #fff;
+      }
+
+      .song-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .song-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+      }
+      .song-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 6px;
+      }
+      .song-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .tag {
+        font-size: 0.68rem;
+        padding: 2px 8px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-dim);
+        text-transform: capitalize;
+      }
+      .tag.hq {
+        border-color: rgba(34, 211, 238, 0.35);
+        color: #67e8f9;
+        background: rgba(34, 211, 238, 0.07);
+      }
+
+      .song-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+        align-items: center;
+      }
+
+      .btn-preview {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+      .btn-preview:hover {
+        border-color: rgba(6, 182, 212, 0.5);
+        color: var(--secondary);
+        background: rgba(6, 182, 212, 0.08);
+      }
+
+      .btn-download {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 18px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, var(--primary), #6366f1);
+        border: none;
+        color: #fff;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        white-space: nowrap;
+      }
+      .btn-download:hover {
+        transform: scale(1.04);
+        box-shadow: 0 4px 20px rgba(139, 92, 246, 0.5);
+      }
+      .btn-download:active {
+        transform: scale(0.97);
+      }
+      .btn-download.downloading {
+        background: linear-gradient(135deg, #374151, #1f2937);
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      .btn-download.done {
+        background: linear-gradient(135deg, #059669, #047857);
+      }
+
+      /* Audio preview */
+      .audio-wrap {
+        display: none;
+        padding: 10px 14px;
+        background: rgba(6, 182, 212, 0.06);
+        border-top: 1px solid rgba(6, 182, 212, 0.15);
+      }
+      .audio-wrap.visible {
+        display: block;
+      }
+      audio {
+        width: 100%;
+        height: 36px;
+        outline: none;
+      }
+      audio::-webkit-media-controls-panel {
+        background: #0d0d1f;
+      }
+
+      /* Empty / error states */
+      .state-box {
+        text-align: center;
+        padding: 72px 24px;
+      }
+      .state-icon {
+        font-size: 3.5rem;
+        margin-bottom: 16px;
+        opacity: 0.6;
+      }
+      .state-box h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .state-box p {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        max-width: 340px;
+        margin: 0 auto;
+      }
+
+      /* Toast */
+      #toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        padding: 12px 24px;
+        border-radius: 50px;
+        background: rgba(20, 20, 40, 0.95);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 999;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      }
+      #toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+      #toast.success {
+        border-color: rgba(34, 211, 238, 0.4);
+      }
+      #toast.error {
+        border-color: rgba(244, 63, 94, 0.4);
+      }
+
+      /* Footer */
+      footer {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 24px;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-dim);
+      }
+      footer a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Animations */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(139, 92, 246, 0.3);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(139, 92, 246, 0.55);
+      }
+
+      /* Responsive */
+      @media (max-width: 600px) {
+        .song-card-inner {
+          flex-wrap: wrap;
+        }
+        .song-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+        #search-btn span {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- BACKGROUND ORBS -->
+    <div class="bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav>
+      <div class="logo">
+        <div class="logo-icon"><img src="/assests/images/logo.png" alt="logo"></div>
+        <span>SaavnBox</span>
+      </div>
+      <div class="nav-tag">Apsara's Song</div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span> Free | No Account | No Limits
+      </div>
+      <h1>Download Any Song</h1>
+      <p>
+        Search by song name, artist, or paste a  link to get instant
+        high-quality downloads.
+      </p>
+
+      <!-- SEARCH -->
+      <div class="search-wrap">
+        <div class="search-box">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search songs, albums or paste  link..."
+            autocomplete="off"
+            autofocus
+          />
+          <button id="search-btn">
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <span>Search</span>
+          </button>
+        </div>
+        <div class="search-hints">
+          <span class="hint">
+            <svg
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4l3 3" />
+            </svg>
+            Try: "Tum Hi Ho"
+          </span>
+          <span class="hint">
+            <svg
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
+              />
+              <path
+                d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
+              />
+            </svg>
+            Or paste  URL
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TYPE TABS -->
+    <div class="tabs-wrap">
+      <button class="tab-btn active" id="tab-song" data-type="song">
+        Songs
+      </button>
+      <button class="tab-btn" id="tab-album" data-type="album">
+        Albums
+      </button>
+      <button class="tab-btn" id="tab-playlist" data-type="playlist">
+        Playlists
+      </button>
+      <button class="tab-btn" id="tab-lyrics" data-type="lyrics">
+        Lyrics
+      </button>
+    </div>
+
+    <!-- MAIN RESULTS -->
+    <main>
+      <!-- INITIAL STATE -->
+      <div class="state-box" id="initial-state">
+        <div class="state-icon">Music</div>
+        <h3>Discover Your Music</h3>
+        <p>
+          Search for any song from   library and download it
+          instantly.
+        </p>
+      </div>
+
+      <!-- LOADER -->
+      <div id="loader">
+        <div class="spinner"></div>
+        <p>Searching sawanbox...</p>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="results-header" style="display: none" class="results-header">
+        <h2 id="results-label">Results</h2>
+        <span class="results-count" id="results-count"></span>
+      </div>
+      <div id="results"></div>
+
+      <!-- LYRICS BOX -->
+      <div
+        id="lyrics-box"
+        style="
+          display: none;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 28px;
+          white-space: pre-wrap;
+          line-height: 1.85;
+          font-size: 0.95rem;
+          color: var(--text-muted);
+        "
+      ></div>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <!-- FOOTER -->
+    <footer>
+      Built with care by Apsara | For personal, educational use only.
+      
+    </footer>
+
+    <script>
+      const API_BASE = window.location.origin;
+      let activeType = "song";
+      let currentAudio = null;
+
+      // Route audio URLs through the Flask proxy to bypass CDN rate-limiting
+      function proxyUrl(url) {
+        if (!url) return "";
+        return `${API_BASE}/proxy/?url=${encodeURIComponent(url)}`;
+      }
+
+      // Tabs
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeType = btn.dataset.type;
+
+          // Update placeholder
+          const hints = {
+            song: "Search songs or paste JioSaavn song link...",
+            album: "Paste JioSaavn album link or album name...",
+            playlist: "Paste JioSaavn playlist link...",
+            lyrics: "Paste JioSaavn song link or song ID for lyrics...",
+          };
+          document.getElementById("search-input").placeholder =
+            hints[activeType];
+          clearResults();
+        });
+      });
+
+      // Search
+      document.getElementById("search-btn").addEventListener("click", doSearch);
+      document
+        .getElementById("search-input")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") doSearch();
+        });
+
+      async function doSearch() {
+        const query = document.getElementById("search-input").value.trim();
+        if (!query) {
+          showToast("Please enter a search term", "error");
+          return;
+        }
+
+        showLoader();
+
+        try {
+          let url;
+          if (activeType === "lyrics") {
+            url = `${API_BASE}/lyrics/?query=${encodeURIComponent(query)}`;
+          } else if (activeType === "album") {
+            url = `${API_BASE}/album/?query=${encodeURIComponent(query)}`;
+          } else if (activeType === "playlist") {
+            url = `${API_BASE}/playlist/?query=${encodeURIComponent(query)}`;
+          } else {
+            // Auto-detect: if it's a JioSaavn URL use /result/, else /song/
+            if (query.includes("jiosaavn.com")) {
+              url = `${API_BASE}/result/?query=${encodeURIComponent(query)}`;
+            } else {
+              url = `${API_BASE}/song/?query=${encodeURIComponent(query)}`;
+            }
+          }
+
+          const res = await fetch(url);
+          const data = await res.json();
+          hideLoader();
+
+          if (activeType === "lyrics") {
+            renderLyrics(data);
+          } else {
+            renderResults(data);
+          }
+        } catch (err) {
+          hideLoader();
+          showError(
+            "Connection failed. Make sure the Flask API is running on port 5100.",
+          );
+        }
+      }
+
+      // Render results
+      function renderResults(data) {
+        const container = document.getElementById("results");
+        const header = document.getElementById("results-header");
+        const countEl = document.getElementById("results-count");
+        const lyricsBox = document.getElementById("lyrics-box");
+        container.innerHTML = "";
+        lyricsBox.style.display = "none";
+
+        if (!data || data.status === false) {
+          container.innerHTML = errorState(data?.error || "No results found.");
+          header.style.display = "none";
+          return;
+        }
+
+        let songs = [];
+
+        // Unwrap different API response shapes
+        if (Array.isArray(data)) {
+          songs = data;
+        } else if (data.songs) {
+          songs = data.songs;
+        } else if (data.song) {
+          songs = [data];
+        } else if (typeof data === "object" && data.id) {
+          songs = [data];
+        } else {
+          // Try values of the object
+          songs = Object.values(data).filter((v) => typeof v === "object");
+        }
+
+        if (!songs.length) {
+          container.innerHTML = errorState(
+            "No songs found. Try a different query.",
+          );
+          header.style.display = "none";
+          return;
+        }
+
+        header.style.display = "flex";
+        document.getElementById("results-label").textContent =
+          activeType === "album"
+            ? `Album: ${data.name || ""}`
+            : activeType === "playlist"
+              ? `Playlist: ${data.listname || ""}`
+              : "Search Results";
+        countEl.textContent = `${songs.length} song${songs.length > 1 ? "s" : ""}`;
+
+        songs.forEach((song, i) => {
+          const card = buildSongCard(song, i);
+          container.appendChild(card);
+        });
+
+        document.getElementById("initial-state").style.display = "none";
+      }
+
+      function buildSongCard(song, index) {
+        const wrap = document.createElement("div");
+        wrap.className = "song-card";
+        wrap.style.animationDelay = `${index * 0.06}s`;
+
+        const title = song.song || song.title || "Unknown Title";
+        const artist =
+          song.primary_artists ||
+          song.singers ||
+          song.music ||
+          "Unknown Artist";
+        const album = song.album || "";
+        const year = song.year || "";
+        const lang = song.language || "";
+        const is320 = song["320kbps"] === "true";
+        const imgUrl = (song.image || song.image_url || "")
+          .replace("150x150", "500x500")
+          .replace("http://", "https://");
+        const dlUrl = (song.media_url || song.url || "").replace(
+          "http://",
+          "https://",
+        );
+        const previewUrl = (song.media_preview_url || "").replace(
+          "http://",
+          "https://",
+        );
+        // Use the full media URL for preview playback (preview.saavncdn.com returns 429)
+        const proxiedPreview = proxyUrl(dlUrl || previewUrl);
+        const proxiedDl = proxyUrl(dlUrl);
+        const cardId = `card-${index}`;
+
+        wrap.innerHTML = `
+      <div class="song-card-inner">
+        <div class="song-thumb">
+          <img src="${imgUrl}" alt="${escape(title)}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'62\\' height=\\'62\\'><rect width=\\'62\\' height=\\'62\\' fill=\\'%23191929\\'/><text x=\\'31\\' y=\\'38\\' font-size=\\'24\\' text-anchor=\\'middle\\' fill=\\'white\\'>S</text></svg>'" />
+          <div class="thumb-overlay" title="Preview">
+            <span class="play-icon">Play</span>
+          </div>
+        </div>
+        <div class="song-info">
+          <div class="song-title">${sanitize(title)}</div>
+          <div class="song-meta">${sanitize(artist)}${album ? " | " + sanitize(album) : ""}${year ? " | " + year : ""}</div>
+          <div class="song-tags">
+            ${lang ? `<span class="tag">${lang}</span>` : ""}
+            ${is320 ? '<span class="tag hq">320kbps</span>' : '<span class="tag">160kbps</span>'}
+            <span class="tag">MP4</span>
+          </div>
+        </div>
+        <div class="song-actions">
+          ${dlUrl || previewUrl ? `<button class="btn-preview" title="Preview song">Play</button>` : ""}
+          ${
+            dlUrl
+              ? `<button class="btn-download" data-url="${dlUrl}" data-title="${escape(title)}">
+                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                 Download
+               </button>`
+              : `<button class="btn-download" style="background:rgba(255,255,255,0.06);cursor:not-allowed;pointer-events:none;" title="No download URL available">Unavailable</button>`
+          }
+        </div>
+      </div>
+      <div class="audio-wrap" data-card-id="${cardId}">
+        <audio controls preload="none"></audio>
+      </div>
+    `;
+
+        // Store preview URL on the wrapper for later use
+        wrap.dataset.previewUrl = previewUrl;
+        wrap.dataset.cardId = cardId;
+
+        // Preview button (small circle button + thumbnail overlay)
+        const previewBtns = wrap.querySelectorAll(
+          ".btn-preview, .thumb-overlay",
+        );
+        previewBtns.forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            togglePreview(wrap, proxiedPreview);
+          });
+        });
+
+        // Download button
+        const dlBtn = wrap.querySelector(".btn-download");
+        if (dlBtn && dlUrl) {
+          dlBtn.addEventListener("click", () =>
+            downloadSong(dlBtn, proxiedDl, title),
+          );
+        }
+
+        return wrap;
+      }
+
+      function togglePreview(wrap, previewUrl) {
+        const audioWrap = wrap.querySelector(".audio-wrap");
+        if (!audioWrap || !previewUrl) return;
+
+        const audio = audioWrap.querySelector("audio");
+        const isVisible = audioWrap.classList.contains("visible");
+
+        // Close any other open preview
+        document.querySelectorAll(".audio-wrap.visible").forEach((aw) => {
+          if (aw !== audioWrap) {
+            aw.classList.remove("visible");
+            const otherAudio = aw.querySelector("audio");
+            if (otherAudio) {
+              otherAudio.pause();
+              otherAudio.currentTime = 0;
+            }
+          }
+        });
+
+        if (isVisible) {
+          audioWrap.classList.remove("visible");
+          audio.pause();
+        } else {
+          // Set source only when needed (lazy load)
+          if (
+            !audio.src ||
+            audio.src === "" ||
+            audio.src === window.location.href
+          ) {
+            audio.src = previewUrl;
+          }
+          audioWrap.classList.add("visible");
+          audio.play().catch((err) => {
+            console.warn("Playback failed:", err);
+            showToast("Preview unavailable for this song", "error");
+          });
+        }
+      }
+
+      async function downloadSong(btn, url, title) {
+        btn.classList.add("downloading");
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Downloading...`;
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed");
+
+          const blob = await response.blob();
+          const objUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = objUrl;
+          a.download = `${title}.mp4`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(objUrl);
+
+          btn.classList.remove("downloading");
+          btn.classList.add("done");
+          btn.innerHTML = `Downloaded`;
+          showToast(`"${title}" downloaded!`, "success");
+
+          setTimeout(() => {
+            btn.classList.remove("done");
+            btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download`;
+          }, 3000);
+        } catch (e) {
+          // Fallback: open in new tab
+          window.open(url, "_blank");
+          btn.classList.remove("downloading");
+          btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download`;
+          showToast("Opened in new tab - save manually", "success");
+        }
+      }
+
+      // Lyrics
+      function renderLyrics(data) {
+        document.getElementById("results").innerHTML = "";
+        document.getElementById("results-header").style.display = "none";
+        document.getElementById("initial-state").style.display = "none";
+        const box = document.getElementById("lyrics-box");
+
+        if (!data || data.status === false) {
+          box.textContent = "No lyrics found for this song.";
+        } else {
+          box.textContent = data.lyrics || "Lyrics not available.";
+        }
+        box.style.display = "block";
+      }
+
+      // Utils
+      function sanitize(str) {
+        const d = document.createElement("div");
+        d.textContent = str;
+        return d.innerHTML;
+      }
+      function escape(str) {
+        return (str || "").replace(/"/g, "&quot;");
+      }
+
+      function showLoader() {
+        document.getElementById("initial-state").style.display = "none";
+        document.getElementById("results").innerHTML = "";
+        document.getElementById("lyrics-box").style.display = "none";
+        document.getElementById("results-header").style.display = "none";
+        document.getElementById("loader").style.display = "block";
+      }
+      function hideLoader() {
+        document.getElementById("loader").style.display = "none";
+      }
+      function clearResults() {
+        document.getElementById("results").innerHTML = "";
+        document.getElementById("results-header").style.display = "none";
+        document.getElementById("lyrics-box").style.display = "none";
+        document.getElementById("initial-state").style.display = "block";
+      }
+
+      function errorState(msg) {
+        return `<div class="state-box"><div class="state-icon">Oops</div><h3>Oops!</h3><p>${sanitize(msg)}</p></div>`;
+      }
+      function showError(msg) {
+        document.getElementById("results").innerHTML = errorState(msg);
+        document.getElementById("results-header").style.display = "none";
+        document.getElementById("initial-state").style.display = "none";
+      }
+
+      let toastTimer;
+      function showToast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = `show ${type}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 3500);
+      }
+    </script>
+  </body>
+</html>

@@ -11,7 +11,7 @@ def format_song(data, lyrics):
                 "_320.mp4", "_160.mp4")
         data['media_preview_url'] = data['media_url'].replace(
             "_320.mp4", "_96_p.mp4").replace("_160.mp4", "_96_p.mp4").replace("//aac.", "//preview.")
-    except KeyError or TypeError:
+    except (KeyError, TypeError):
         url = data['media_preview_url']
         url = url.replace("preview", "aac")
         if data['320kbps'] == "true":
@@ -64,8 +64,7 @@ def format(string):
 
 
 def decrypt_url(url):
-    des_cipher = des(b"38346591", ECB, b"\0\0\0\0\0\0\0\0",
-                     pad=None, padmode=PAD_PKCS5)
+    des_cipher = des(b"38346591", ECB, b"\0\0\0\0\0\0\0\0",pad=None, padmode=PAD_PKCS5)
     enc_url = base64.b64decode(url.strip())
     dec_url = des_cipher.decrypt(enc_url, padmode=PAD_PKCS5).decode('utf-8')
     dec_url = dec_url.replace("_96.mp4", "_320.mp4")
